@@ -14,7 +14,7 @@ public:
   auto prepareToPlay(double sampleRate, int samplesPerBlock) -> void override;
   auto releaseResources() -> void override;
   auto processBlock(AudioBuffer<float>&, MidiBuffer&) -> void override;
-  auto getHostInfo() noexcept -> std::tuple<double, double, int64_t, TimeSignature, bool, bool, LoopPoints>;
+  auto getHostInfo() noexcept -> std::tuple<double, double, int64, TimeSignature, bool, bool, LoopPoints>;
 
   auto isBusesLayoutSupported (const BusesLayout& layouts) const -> bool override;
   auto createEditor() -> AudioProcessorEditor* override;
@@ -59,7 +59,7 @@ public:
   AudioBuffer<float> captureBuffer;
   bool hasRecording = false;
   int captureLengthSamples = 0;
-  int64_t captureStartSample = 0;
+  int64 captureStartSample = 0;
   int captureBars = 0;
   
 private:
@@ -68,7 +68,7 @@ private:
   bool pendingImmediateStart = false;
   int writePosition = 0;
 
-  int64_t previousSampleTime = 0;
+  int64 previousSampleTime = 0;
   double previousPPQ = 0;
   bool previousPlaying = false;
 

@@ -83,7 +83,7 @@ auto PresetManager::loadPreset(const String& jsonStr) -> String {
 
         int channels = static_cast<int>(capture->getProperty("channels"));
         int length = static_cast<int>(capture->getProperty("length"));
-        int64_t startSample = static_cast<int64_t>(capture->getProperty("startSample"));
+        int64 startSample = static_cast<int64>(capture->getProperty("startSample"));
         int bars = static_cast<int>(capture->getProperty("captureBars"));
 
         processor.captureBuffer.setSize(channels, length);

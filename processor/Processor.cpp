@@ -65,10 +65,10 @@ auto Processor::prepareToPlay(double sampleRate, int samplesPerBlock) -> void {
 
 auto Processor::releaseResources() -> void {}
 
-auto Processor::getHostInfo() noexcept -> std::tuple<double, double, int64_t, TimeSignature, bool, bool, LoopPoints> {
+auto Processor::getHostInfo() noexcept -> std::tuple<double, double, int64, TimeSignature, bool, bool, LoopPoints> {
     double bpm = 150.0;
     double ppq = 0.0;
-    int64_t sampleTime = 0;
+    int64 sampleTime = 0;
     TimeSignature timeSignature{4, 4};
     bool isPlaying = false;
     bool isLooping = false;
@@ -228,8 +228,8 @@ auto Processor::processBlock(AudioBuffer<float>& buffer, [[maybe_unused]] MidiBu
         }
 
         if (this->hasRecording && isPlaying) {
-            int64_t currentSample = sampleTime + sample;
-            int64_t forwardPosition = currentSample - this->captureStartSample;
+            int64 currentSample = sampleTime + sample;
+            int64 forwardPosition = currentSample - this->captureStartSample;
 
             forwardPosition %= this->captureLengthSamples;
             if (forwardPosition < 0) {
