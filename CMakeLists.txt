@@ -1,0 +1,96 @@
+cmake_minimum_required(VERSION 3.31)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+project(CuteReverse VERSION 1.0.0)
+
+option(WEBVIEW_DEV_MODE "Enable webview dev mode (load from disk)" OFF)
+
+if(APPLE)
+    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE INTERNAL "" FORCE)
+endif()
+
+include(FetchContent)
+
+FetchContent_Declare(
+  juce
+  GIT_REPOSITORY https://github.com/juce-framework/JUCE
+  GIT_TAG        8.0.14
+)
+FetchContent_MakeAvailable(juce)
+
+juce_add_plugin(${PROJECT_NAME}
+    COMPANY_NAME Moebytes
+    IS_SYNTH FALSE
+    NEEDS_MIDI_INPUT FALSE
+    NEEDS_MIDI_OUTPUT FALSE
+    IS_MIDI_EFFECT FALSE
+    EDITOR_WANTS_KEYBOARD_FOCUS TRUE
+    COPY_PLUGIN_AFTER_BUILD FALSE
+    PLUGIN_MANUFACTURER_CODE Mbit
+    PLUGIN_CODE Reve
+    FORMATS VST3 AU Standalone
+    PRODUCT_NAME "Cute Reverse"
+    ICON_BIG "assets/icon.png"
+    NEEDS_WEB_BROWSER TRUE
+    NEEDS_WEBVIEW2 TRUE
+)
+
+juce_generate_juce_header(${PROJECT_NAME})
+
+file(GLOB SRC_FILES "editor/*.cpp" "processor/*.cpp" "structures/*.cpp")
+
+if (APPLE)
+    file(GLOB OBJC_SRC_FILES "editor/*.mm")
+endif()
+
+target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES} ${OBJC_SRC_FILES})
+
+target_compile_definitions(${PROJECT_NAME}
+    PUBLIC
+        JUCE_WEB_BROWSER=1
+        JUCE_USE_CURL=0
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1
+        $<$<BOOL:${WEBVIEW_DEV_MODE}>:WEBVIEW_DEV_MODE=1>)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/editor
+    ${CMAKE_CURRENT_SOURCE_DIR}/processor
+    ${CMAKE_CURRENT_SOURCE_DIR}/structures
+)
+
+set(WEBVIEW_FILES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dist")
+set(WEBVIEW_ZIP "${CMAKE_BINARY_DIR}/webview_files.zip")
+
+file(GLOB_RECURSE WEBVIEW_FILES RELATIVE ${WEBVIEW_FILES_DIR} "${WEBVIEW_FILES_DIR}/*")
+file(
+    ARCHIVE_CREATE
+    OUTPUT ${WEBVIEW_ZIP}
+    PATHS ${WEBVIEW_FILES}
+    WORKING_DIRECTORY ${WEBVIEW_FILES_DIR}
+    FORMAT zip VERBOSE
+)
+
+add_library(disable_shadow_warnings INTERFACE)
+add_library(utils::disable_shadow_warnings ALIAS disable_shadow_warnings)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(disable_shadow_warnings INTERFACE -Wno-shadow)
+elseif(MSVC)
+    target_compile_options(disable_shadow_warnings INTERFACE /wd4456 /wd4457)
+endif()
+
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        juce::juce_audio_utils
+        juce::juce_cryptography
+        juce::juce_dsp
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+        utils::disable_shadow_warnings)

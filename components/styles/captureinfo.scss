@@ -1,0 +1,20 @@
+.capture-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+    gap: 1rem;
+}
+
+.capture-info-text {
+    color: var(--captureColor);
+    font-family: "SmallPixel-7", sans-serif;
+    font-weight: bold;
+    font-size: 1.9rem;
+}
+
+.capture-info-icon {
+    color: var(--captureColor);
+    width: auto;
+    height: 1rem;
+}

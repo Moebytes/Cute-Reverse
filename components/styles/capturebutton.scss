@@ -1,0 +1,28 @@
+.capture-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 0.2rem solid var(--mainColor);
+    padding: 0.3rem 0.7rem;
+    border-radius: 0.7rem;
+    cursor: default;
+    gap: 1rem;
+}
+
+.capture-button-text {
+    color: var(--mainColor);
+    font-family: "SmallPixel-7", sans-serif;
+    font-weight: bold;
+    font-size: 3.0rem;
+}
+
+.capture-button-icon {
+    color: var(--mainColor);
+    width: auto;
+    height: 2rem;
+}
+
+.capture-active {
+    border-color: var(--captureColor);
+    color: var(--captureColor);
+}
